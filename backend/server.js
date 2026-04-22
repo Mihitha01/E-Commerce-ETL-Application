@@ -2,6 +2,7 @@
 const express = require('express');
 const cors = require('cors');
 const connectDB = require('./db');
+const redisClient = require('./redisClient'); // <-- NEW LINE ADDED HERE
 
 // Connect to MongoDB
 connectDB();
@@ -9,15 +10,15 @@ connectDB();
 const app = express();
 
 // Middleware
-app.use(cors()); // Allows your frontend to make requests to this backend
-app.use(express.json()); // Allows the backend to parse incoming JSON data
+app.use(cors()); 
+app.use(express.json()); 
 
 // A simple test route to ensure the server is running
 app.get('/', (req, res) => {
     res.send('Amazon Sales API is running...');
 });
 
-// Import our Sales routes (we will create this file next)
+// Import our Sales routes
 app.use('/api/sales', require('./routes/salesRoutes'));
 
 const PORT = process.env.PORT || 5000;
