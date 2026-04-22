@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  # 1. Our Database
+  mongodb:
+    image: mongo:latest
+    container_name: etl-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db # This line ensures your data is saved even if the container stops!
+
+  # 2. Our Cache
+  redis:
+    image: redis:latest
+    container_name: etl-redis
+    ports:
+      - "6379:6379"
+
+# Declare the persistent volume for MongoDB
+volumes:
+  mongo-data:
