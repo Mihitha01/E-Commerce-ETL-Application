@@ -1,28 +1,34 @@
 import React, { useState } from 'react';
 import hash from 'object-hash';
 import { useNavigate } from 'react-router-dom';
+import { useHookstate } from '@hookstate/core';
+import { authState } from '../store/authStore';
 
 const Login = () => {
+  // Local state for the form typing
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  
+  // GLOBAL STATE via Hookstate
+  const auth = useHookstate(authState);
   const navigate = useNavigate();
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // 1. Hardcoded target hash (In reality, this would be on a server)
-    // We are hashing the object { user: 'admin', pass: 'password123' }
     const targetHash = hash({ user: 'admin', pass: 'password123' });
-    
-    // 2. Hash the user's input
     const inputHash = hash({ user: username, pass: password });
 
-    // 3. Compare hashes
     if (inputHash === targetHash) {
-      // Supervisor Requirement: Save login session
+      // 1. Save to sessionStorage for persistence across refreshes
       sessionStorage.setItem('isAuthenticated', 'true');
       sessionStorage.setItem('user', username);
+      
+      // 2. Update our GLOBAL Hookstate
+      auth.isAuthenticated.set(true);
+      auth.user.set(username);
+      
       navigate('/dashboard');
     } else {
       setError('Invalid credentials. Hint: use admin / password123');

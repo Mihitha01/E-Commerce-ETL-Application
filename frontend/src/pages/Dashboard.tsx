@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import KpiCard from '../components/KpiCard'; // Import our new memoized component
+import { useHookstate } from '@hookstate/core';
+import { authState } from '../store/authStore';
+import KpiCard from '../components/KpiCard'; 
 
 interface Sale {
   _id: string;
@@ -13,27 +15,22 @@ interface Sale {
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const user = sessionStorage.getItem('user');
+  
+  // Grab our global auth state!
+  const auth = useHookstate(authState);
 
   const [sales, setSales] = useState<Sale[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  
-  // New state for our search bar
   const [searchTerm, setSearchTerm] = useState('');
-
-  // REQUIREMENT: useRef
-  // We use this to get a direct reference to the input HTML element
+  
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   const fetchSalesData = useCallback(async () => {
     setLoading(true);
     try {
-      // REQUIREMENT: Environment Variables (.env)
-      // We no longer hardcode localhost:5000!
       const baseUrl = import.meta.env.VITE_API_BASE_URL;
       const response = await fetch(`${baseUrl}/api/sales?limit=10`);
-      
       const json = await response.json();
       if (json.success) setSales(json.data);
       else setError('Failed to fetch data');
@@ -46,15 +43,11 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchSalesData();
-    
-    // REQUIREMENT: useRef in action
-    // As soon as the component loads, we force the cursor into the search box!
     if (searchInputRef.current) {
       searchInputRef.current.focus();
     }
   }, [fetchSalesData]);
 
-  // Filter sales based on our search bar
   const filteredSales = useMemo(() => {
     return sales.filter(sale => 
       sale['ship-city']?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -68,6 +61,9 @@ const Dashboard = () => {
 
   const handleLogout = () => {
     sessionStorage.clear();
+    // Clear the global state
+    auth.isAuthenticated.set(false);
+    auth.user.set(null);
     navigate('/');
   };
 
@@ -79,20 +75,19 @@ const Dashboard = () => {
           <p className="text-gray-500 mt-1">Live data from MongoDB</p>
         </div>
         <div className="flex items-center gap-4">
-          <span className="font-semibold text-blue-600">Welcome, {user}</span>
+          {/* Read the global state value here using .get() */}
+          <span className="font-semibold text-blue-600">Welcome, {auth.user.get()}</span>
           <button onClick={handleLogout} className="bg-red-500 text-white px-4 py-2 rounded shadow hover:bg-red-600 transition">
             Logout
           </button>
         </div>
       </div>
 
-      {/* REQUIREMENT: React.memo in action */}
       <KpiCard title="Total Revenue (Filtered Orders)" value={totalRevenue} />
 
-      {/* REQUIREMENT: useRef Search Bar */}
       <div className="mb-6">
         <input 
-          ref={searchInputRef} // Attaching the ref here!
+          ref={searchInputRef}
           type="text" 
           placeholder="Search by City or Order ID..." 
           value={searchTerm}
@@ -108,7 +103,6 @@ const Dashboard = () => {
           <div className="p-8 text-center text-red-500 font-bold">{error}</div>
         ) : (
           <table className="min-w-full divide-y divide-gray-200">
-            {/* ... (Keep your exact same table header and body here, but map over `filteredSales` instead of `sales`) ... */}
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
