@@ -50,7 +50,7 @@ class DataTransformer:
         valid_rows: list[dict[str, Any]] = []
         errors: list[dict[str, Any]] = []
 
-        for row_index, row in dataframe.iterrows():
+        for row_index, (_, row) in enumerate(dataframe.iterrows()):
             try:
                 valid_rows.append(self._validate_and_normalize_row(row))
             except RowValidationError as error:
