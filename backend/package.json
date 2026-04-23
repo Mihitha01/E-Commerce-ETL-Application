@@ -1,20 +1,27 @@
 {
   "name": "backend",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "version": "2.0.0",
+  "description": "E-Commerce ETL API with Strategy Pattern architecture",
+  "main": "server.js",
   "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
+  "keywords": ["etl", "strategy-pattern", "express", "mongodb", "redis"],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "sql.js": "^1.11.0",
     "cors": "^2.8.6",
+    "csv-parser": "^3.0.0",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "mongoose": "^9.5.0",
-    "redis": "^5.12.1"
+    "pg": "^8.13.0",
+    "redis": "^5.12.1",
+    "xlsx": "^0.18.5",
+    "zod": "^3.23.0"
   }
 }

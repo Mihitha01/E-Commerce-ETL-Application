@@ -1,22 +1,71 @@
-version: '3.8' #we dont need this anymore but its good practice to specify the version of docker-compose we are using
-
 services:
-  # 1. Our Database
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      args:
+        VITE_API_BASE_URL: http://localhost:5000
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      PORT: 5000
+      MONGO_URI: mongodb://mongodb:27017/AmazonSalesDB
+      REDIS_URL: redis://redis:6379
+      MONGO_DB_NAME: AmazonSalesDB
+      MONGO_COLLECTION: sales_report
+      ETL_SQL_CONNECTION_STRING: postgresql+psycopg2://postgres:postgres@postgres:5432/etl_db
+      ETL_SQL_TABLE: sales_report
+    depends_on:
+      - mongodb
+      - redis
+      - postgres
+
+  etl:
+    build:
+      context: .
+      dockerfile: etl/Dockerfile
+    profiles:
+      - etl
+    environment:
+      MONGO_URI: mongodb://mongodb:27017/AmazonSalesDB
+      ETL_SQL_CONNECTION_STRING: postgresql+psycopg2://postgres:postgres@postgres:5432/etl_db
+    depends_on:
+      - mongodb
+      - postgres
+    command: ["--help"]
+
   mongodb:
     image: mongo:latest
-    container_name: etl-mongo
     ports:
       - "27017:27017"
     volumes:
-      - mongo-data:/data/db # This line ensures your data is saved even if the container stops!
+      - mongo-data:/data/db
 
-  # 2. Our Cache
   redis:
     image: redis:latest
-    container_name: etl-redis
     ports:
       - "6379:6379"
 
-# Declare the persistent volume for MongoDB
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: etl_db
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
 volumes:
   mongo-data:
+  postgres-data:

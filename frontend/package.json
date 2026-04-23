@@ -1,13 +1,17 @@
 {
-  "name": "frontend",
+  "name": "etl-command-center",
   "private": true,
-  "version": "0.0.0",
+  "version": "2.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
+    "build:qa": "tsc -b && vite build --mode qa",
+    "build:uat": "tsc -b && vite build --mode uat",
+    "build:prod": "tsc -b && vite build --mode production",
+    "preview": "vite preview",
+    "lint": "eslint . --ext .ts,.tsx --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint . --ext .ts,.tsx --fix"
   },
   "dependencies": {
     "@hookstate/core": "^4.0.2",
@@ -18,6 +22,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
+    "@tailwindcss/vite": "^4.2.4",
     "@types/node": "^24.12.2",
     "@types/object-hash": "^3.0.6",
     "@types/react": "^19.2.14",
