@@ -1,22 +1,36 @@
-version: '3.8' #we dont need this anymore but its good practice to specify the version of docker-compose we are using
+version: '3.8'
 
 services:
-  # 1. Our Database
+  # 1. Our NoSQL Database
   mongodb:
     image: mongo:latest
     container_name: etl-mongo
     ports:
       - "27017:27017"
     volumes:
-      - mongo-data:/data/db # This line ensures your data is saved even if the container stops!
+      - mongo-data:/data/db
 
-  # 2. Our Cache
+  # 2. Our Cache + Pub/Sub Broker
   redis:
     image: redis:latest
     container_name: etl-redis
     ports:
       - "6379:6379"
 
-# Declare the persistent volume for MongoDB
+  # 3. Our SQL Database (for PostgresLoader strategy)
+  postgres:
+    image: postgres:16-alpine
+    container_name: etl-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: etl_db
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+# Declare persistent volumes
 volumes:
   mongo-data:
+  postgres-data:
