@@ -1,26 +1,64 @@
-version: '3.8'
+version: "3.8"
 
 services:
-  # 1. Our NoSQL Database
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      args:
+        VITE_API_BASE_URL: http://localhost:5000
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      PORT: 5000
+      MONGO_URI: mongodb://mongodb:27017/AmazonSalesDB
+      REDIS_URL: redis://redis:6379
+      MONGO_DB_NAME: AmazonSalesDB
+      MONGO_COLLECTION: sales_report
+      ETL_SQL_CONNECTION_STRING: postgresql+psycopg2://postgres:postgres@postgres:5432/etl_db
+      ETL_SQL_TABLE: sales_report
+    depends_on:
+      - mongodb
+      - redis
+      - postgres
+
+  etl:
+    build:
+      context: .
+      dockerfile: etl/Dockerfile
+    profiles:
+      - etl
+    environment:
+      MONGO_URI: mongodb://mongodb:27017/AmazonSalesDB
+      ETL_SQL_CONNECTION_STRING: postgresql+psycopg2://postgres:postgres@postgres:5432/etl_db
+    depends_on:
+      - mongodb
+      - postgres
+    command: ["--help"]
+
   mongodb:
     image: mongo:latest
-    container_name: etl-mongo
     ports:
       - "27017:27017"
     volumes:
       - mongo-data:/data/db
 
-  # 2. Our Cache + Pub/Sub Broker
   redis:
     image: redis:latest
-    container_name: etl-redis
     ports:
       - "6379:6379"
 
-  # 3. Our SQL Database (for PostgresLoader strategy)
   postgres:
     image: postgres:16-alpine
-    container_name: etl-postgres
     ports:
       - "5432:5432"
     environment:
@@ -30,7 +68,6 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
 
-# Declare persistent volumes
 volumes:
   mongo-data:
   postgres-data:

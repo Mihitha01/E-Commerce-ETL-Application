@@ -41,11 +41,11 @@ const Dashboard = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
 
-  // ── useRef ──
+  //useRef
   const searchInputRef = useRef<HTMLInputElement>(null);
   const toastRef = useRef<ToastHandle>(null);
 
-  // ── useCallback: Memoized fetch to prevent recreation on every render ──
+  //useCallback: Memoized fetch to prevent recreation on every render
   const fetchSalesData = useCallback(async (page: number = 1) => {
     setLoading(true);
     try {
@@ -71,7 +71,7 @@ const Dashboard = () => {
     }
   }, [searchTerm]);
 
-  // ── useEffect: Fetch data on mount and when page changes ──
+  //useEffect: Fetch data on mount and when page changes
   useEffect(() => {
     fetchSalesData(currentPage);
     if (searchInputRef.current) {
@@ -79,7 +79,7 @@ const Dashboard = () => {
     }
   }, [fetchSalesData, currentPage]);
 
-  // ── useMemo: Derived KPI calculations ──
+  //useMemo: Derived KPI calculations
   const filteredSales = useMemo(() => {
     return sales.filter(sale =>
       sale['ship-city']?.toLowerCase().includes(searchTerm.toLowerCase()) ||
