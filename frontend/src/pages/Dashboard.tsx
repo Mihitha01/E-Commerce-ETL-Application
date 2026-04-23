@@ -1,8 +1,10 @@
-import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useHookstate } from '@hookstate/core';
 import { authState } from '../store/authStore';
 import KpiCard from '../components/KpiCard'; 
+import ToastNotification from '../components/ToastNotification';
+import type { ToastHandle } from '../components/ToastNotification';
 
 interface Sale {
   _id: string;
@@ -25,6 +27,7 @@ const Dashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
   
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const toastRef = useRef<ToastHandle>(null);
 
   const fetchSalesData = useCallback(async () => {
     setLoading(true);
@@ -32,9 +35,14 @@ const Dashboard = () => {
       const baseUrl = import.meta.env.VITE_API_BASE_URL;
       const response = await fetch(`${baseUrl}/api/sales?limit=10`);
       const json = await response.json();
-      if (json.success) setSales(json.data);
+      if (json.success) {
+        setSales(json.data);
+        // NEW: Press the button on our remote control!
+        toastRef.current?.showToast('Live data loaded from MongoDB!');
+      }
       else setError('Failed to fetch data');
     } catch (err) {
+      console.error("Backend fetch error:", err); // We are now using the 'err' variable!
       setError('Error connecting to the server.');
     } finally {
       setLoading(false);
@@ -42,6 +50,7 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchSalesData();
     if (searchInputRef.current) {
       searchInputRef.current.focus();
@@ -69,6 +78,7 @@ const Dashboard = () => {
 
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
+      <ToastNotification ref={toastRef} />
       <div className="flex justify-between items-center mb-8 bg-white p-6 rounded-lg shadow">
         <div>
           <h1 className="text-3xl font-bold text-gray-800">Amazon ETL Dashboard</h1>
