@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import hash from 'object-hash';
 import { useNavigate } from 'react-router-dom';
-import { useHookstate } from '@hookstate/core';
-import { authState, loginUser } from '../store/authStore';
+import { loginUser } from '../store/authStore';
 
 /**
  * ENTERPRISE LOGIN PAGE
@@ -19,7 +18,6 @@ const Login = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const auth = useHookstate(authState);
   const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {

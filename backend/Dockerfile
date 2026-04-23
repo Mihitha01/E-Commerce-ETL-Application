@@ -11,9 +11,9 @@ COPY backend/package*.json /app/backend/
 WORKDIR /app/backend
 RUN npm ci --omit=dev
 
-COPY [requirements.txt](http://_vscodecontentref_/2) /app/etl/requirements.txt
-RUN pip3 install --no-cache-dir -r /app/etl/requirements.txt \
-    && pip3 install --no-cache-dir psycopg2-binary
+COPY etl/requirements.txt /app/etl/requirements.txt
+RUN pip3 install --break-system-packages --no-cache-dir -r /app/etl/requirements.txt \
+    && pip3 install --break-system-packages --no-cache-dir psycopg2-binary
 
 COPY backend /app/backend
 COPY etl /app/etl
