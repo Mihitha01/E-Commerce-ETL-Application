@@ -8,7 +8,7 @@ from .base import BaseLoader
 class MongoLoader(BaseLoader):
     """Load rows into MongoDB."""
 
-    def __init__(
+    def __init__( #store the "Address" of Where the data needs to be loaded (mongoDB)
         self,
         mongo_uri: str,
         database_name: str,

@@ -2,8 +2,7 @@ from typing import Sequence
 
 import pandas as pd
 
-from .base import BaseExtractor
-
+from .base import BaseExtractor # csvExtractor is inheriting from the base extractor
 
 class CsvExtractor(BaseExtractor):
     """Extract data from CSV files using pandas."""

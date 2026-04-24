@@ -1,6 +1,6 @@
-import logging
-import time
-from typing import Any
+import logging 
+import time 
+from typing import Any 
 
 from etl_pipeline.extractors.base import BaseExtractor
 from etl_pipeline.loaders.base import BaseLoader
